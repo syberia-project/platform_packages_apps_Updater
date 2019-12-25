@@ -127,4 +127,7 @@
     <string name="menu_auto_updates_check_interval_monthly">Раз в месяц</string>
     <string name="menu_auto_updates_check_interval_never">Никогда</string>
 
+    <string name="dialog_permissions_title">Разрешения</string>
+    <string name="dialog_permissions_dismiss">Отклонить</string>
+    <string name="dialog_permissions_ask">Запросить снова</string>
 </resources>
