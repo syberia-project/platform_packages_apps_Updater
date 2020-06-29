@@ -150,4 +150,10 @@
     <string name="changelog_url" translatable="false">https://raw.githubusercontent.com/syberia-project/official_devices/master/ab/<xliff:g id="device_name">%1$s</xliff:g>-14.changelog</string>
     <string name="changelog_fail">Failed to retrieve changelog or changelog unavailable</string>
 
+    <string name="local_update_import">Local update</string>
+    <string name="local_update_import_progress">Importing local update\u2026</string>
+    <string name="local_update_import_success">%1$s has been imported. Do you want to install it?</string>
+    <string name="local_update_import_failure">Failed to import local update</string>
+    <string name="local_update_import_install">Install</string>
+    <string name="local_update_name">Local update</string>
 </resources>
