@@ -16,9 +16,8 @@ LOCAL_STATIC_ANDROID_LIBRARIES := \
     androidx.localbroadcastmanager_localbroadcastmanager \
     androidx.preference_preference \
     androidx.appcompat_appcompat \
-    androidx.annotation_annotation
-
-LOCAL_STATIC_JAVA_LIBRARIES += guava
+    androidx.annotation_annotation \
+    SettingsLib
 
 LOCAL_RESOURCE_DIR := \
     $(LOCAL_PATH)/res
