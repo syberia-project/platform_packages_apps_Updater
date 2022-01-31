@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The LineageOS Project
+ * Copyright (C) 2017-2022 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,7 +15,6 @@
  */
 package org.lineageos.updater;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -47,6 +46,8 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import org.lineageos.updater.controller.UpdaterController;
 import org.lineageos.updater.controller.UpdaterService;
 import org.lineageos.updater.misc.BuildInfoUtils;
@@ -76,7 +77,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
     private List<String> mDownloadIds;
     private String mSelectedDownload;
     private UpdaterController mUpdaterController;
-    private UpdatesListActivity mActivity;
+    private final UpdatesListActivity mActivity;
 
     private enum Action {
         DOWNLOAD,
@@ -91,31 +92,31 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
-        private Button mAction;
-		private Button mChangelog;
+        private final Button mAction;
+        private final Button mChangelog;
 
-        private TextView mBuildDate;
-        private TextView mBuildVersion;
-        private TextView mBuildSize;
+        private final TextView mBuildDate;
+        private final TextView mBuildVersion;
+        private final TextView mBuildSize;
 
-        private LinearLayout mProgress;
-        private ProgressBar mProgressBar;
-        private TextView mProgressText;
-        private TextView mPercentage;
+        private final LinearLayout mProgress;
+        private final ProgressBar mProgressBar;
+        private final TextView mProgressText;
+        private final TextView mPercentage;
 
         public ViewHolder(final View view) {
             super(view);
-            mAction = (Button) view.findViewById(R.id.update_action);
-			mChangelog = (Button) view.findViewById(R.id.update_changelog);
+            mAction = view.findViewById(R.id.update_action);
+            mChangelog = view.findViewById(R.id.update_changelog);
 
-            mBuildDate = (TextView) view.findViewById(R.id.build_date);
-            mBuildVersion = (TextView) view.findViewById(R.id.build_version);
-            mBuildSize = (TextView) view.findViewById(R.id.build_size);
+            mBuildDate = view.findViewById(R.id.build_date);
+            mBuildVersion = view.findViewById(R.id.build_version);
+            mBuildSize = view.findViewById(R.id.build_size);
 
             mProgress = view.findViewById(R.id.progress);
-            mProgressBar = (ProgressBar) view.findViewById(R.id.progress_bar);
-            mProgressText = (TextView) view.findViewById(R.id.progress_text);
-            mPercentage = (TextView) view.findViewById(R.id.progress_percent);
+            mProgressBar = view.findViewById(R.id.progress_bar);
+            mProgressText = view.findViewById(R.id.progress_text);
+            mPercentage = view.findViewById(R.id.progress_percent);
         }
     }
 
@@ -127,6 +128,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
         mAlphaDisabledValue = tv.getFloat();
     }
 
+    @NonNull
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
         View view = LayoutInflater.from(viewGroup.getContext())
@@ -233,7 +235,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
     }
 
     @Override
-    public void onBindViewHolder(final ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(@NonNull final ViewHolder viewHolder, int i) {
         if (mDownloadIds == null) {
             viewHolder.mAction.setEnabled(false);
             return;
@@ -323,7 +325,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
         }
 
         View checkboxView = LayoutInflater.from(mActivity).inflate(R.layout.checkbox_view, null);
-        CheckBox checkbox = (CheckBox) checkboxView.findViewById(R.id.checkbox);
+        CheckBox checkbox = checkboxView.findViewById(R.id.checkbox);
         checkbox.setText(R.string.checkbox_mobile_data_warning);
 
         new AlertDialog.Builder(mActivity)
@@ -382,7 +384,10 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
                 final boolean canInstall = Utils.canInstall(update);
                 clickListener = enabled ? view -> {
                     if (canInstall) {
-                        getInstallDialog(downloadId).show();
+                        AlertDialog.Builder installDialog = getInstallDialog(downloadId);
+                        if (installDialog != null) {
+                            installDialog.show();
+                        }
                     } else {
                         mActivity.showSnackbar(R.string.snack_update_not_installable,
                                 Snackbar.LENGTH_LONG);
@@ -412,8 +417,7 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
                 button.setText(R.string.reboot);
                 button.setEnabled(enabled);
                 clickListener = enabled ? view -> {
-                    PowerManager pm =
-                            (PowerManager) mActivity.getSystemService(Context.POWER_SERVICE);
+                    PowerManager pm = mActivity.getSystemService(PowerManager.class);
                     pm.reboot(null);
                 } : null;
             }
@@ -526,24 +530,24 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
                 update.getPersistentStatus() == UpdateStatus.Persistent.VERIFIED);
 
         popupMenu.setOnMenuItemClickListener(item -> {
-            switch (item.getItemId()) {
-                case R.id.menu_delete_action:
-                    getDeleteDialog(update.getDownloadId()).show();
-                    return true;
-                case R.id.menu_copy_url:
-                    Utils.addToClipboard(mActivity,
-                            mActivity.getString(R.string.label_download_url),
-                            update.getDownloadUrl(),
-                            mActivity.getString(R.string.toast_download_url_copied));
-                    return true;
-                case R.id.menu_export_update:
-                    // TODO: start exporting once the permission has been granted
-                    boolean hasPermission = PermissionsUtils.checkAndRequestStoragePermission(
-                            mActivity, 0);
-                    if (hasPermission) {
-                        exportUpdate(update);
-                    }
-                    return true;
+            int itemId = item.getItemId();
+            if (itemId == R.id.menu_delete_action) {
+                getDeleteDialog(update.getDownloadId()).show();
+                return true;
+            } else if (itemId == R.id.menu_copy_url) {
+                Utils.addToClipboard(mActivity,
+                        mActivity.getString(R.string.label_download_url),
+                        update.getDownloadUrl(),
+                        mActivity.getString(R.string.toast_download_url_copied));
+                return true;
+            } else if (itemId == R.id.menu_export_update) {
+                // TODO: start exporting once the permission has been granted
+                boolean hasPermission = PermissionsUtils.checkAndRequestStoragePermission(
+                        mActivity, 0);
+                if (hasPermission) {
+                    exportUpdate(update);
+                }
+                return true;
             }
             return false;
         });
@@ -575,8 +579,10 @@ public class UpdatesListAdapter extends RecyclerView.Adapter<UpdatesListAdapter.
                 .setPositiveButton(android.R.string.ok, null)
                 .setMessage(message)
                 .show();
-        TextView textView = (TextView) dialog.findViewById(android.R.id.message);
-        textView.setMovementMethod(LinkMovementMethod.getInstance());
+        TextView textView = dialog.findViewById(android.R.id.message);
+        if (textView != null) {
+            textView.setMovementMethod(LinkMovementMethod.getInstance());
+        }
     }
 
     private class getChangelogDialog extends AsyncTask<String, Void, String> {

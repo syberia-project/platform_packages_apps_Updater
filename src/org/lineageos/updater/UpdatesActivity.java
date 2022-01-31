@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The LineageOS Project
+ * Copyright (C) 2017-2022 The LineageOS Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,6 +16,7 @@
 package org.lineageos.updater;
 
 import android.app.ProgressDialog;
+import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -35,11 +36,12 @@ import com.google.android.material.snackbar.Snackbar;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.ActionBar;
 import androidx.preference.PreferenceManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.recyclerview.widget.SimpleItemAnimator;
-import androidx.recyclerview.widget.SimpleItemAnimator;
+import androidx.appcompat.widget.SwitchCompat;
 import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -93,7 +95,7 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
         setContentView(R.layout.activity_updates);
 
         mUpdateImporter = new UpdateImporter(this, this);
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.recycler_view);
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
         mAdapter = new UpdatesListAdapter(this);
         recyclerView.setAdapter(mAdapter);
         RecyclerView.LayoutManager layoutManager = new LinearLayoutManager(this);
@@ -109,7 +111,7 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
                 if (UpdaterController.ACTION_UPDATE_STATUS.equals(intent.getAction())) {
                     String downloadId = intent.getStringExtra(UpdaterController.EXTRA_DOWNLOAD_ID);
                     handleDownloadStatusChange(downloadId);
-                    mAdapter.notifyDataSetChanged();
+                    mAdapter.notifyItemChanged(downloadId);
                 } else if (UpdaterController.ACTION_DOWNLOAD_PROGRESS.equals(intent.getAction()) ||
                         UpdaterController.ACTION_INSTALL_PROGRESS.equals(intent.getAction())) {
                     String downloadId = intent.getStringExtra(UpdaterController.EXTRA_DOWNLOAD_ID);
@@ -122,15 +124,18 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
             }
         };
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            actionBar.setDisplayShowTitleEnabled(false);
+            actionBar.setDisplayHomeAsUpEnabled(true);
+        }
 
-        TextView headerTitle = (TextView) findViewById(R.id.header_title);
+        TextView headerTitle = findViewById(R.id.header_title);
         headerTitle.setText(getString(R.string.header_title_text));
 
-        TextView headerVersion = (TextView) findViewById(R.id.header_build_version);
+        TextView headerVersion = findViewById(R.id.header_build_version);
         headerVersion.setText(SystemProperties.get(Constants.PROP_BUILD_VERSION) + " ● " +
                     SystemProperties.get(Constants.PROP_DEVICE));
 
@@ -218,19 +223,16 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_refresh: {
-                downloadUpdatesList(true);
-                return true;
-            }
-            case R.id.menu_preferences: {
-                showPreferencesDialog();
-                return true;
-            }
-            case R.id.menu_local_update: {
-                mUpdateImporter.openImportPicker();
-                return true;
-            }
+        int itemId = item.getItemId();
+        if (itemId == R.id.menu_refresh) {
+            downloadUpdatesList(true);
+            return true;
+        } else if (itemId == R.id.menu_preferences) {
+            showPreferencesDialog();
+            return true;
+        } else if (itemId == R.id.menu_local_update) {
+            mUpdateImporter.openImportPicker();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -375,6 +377,7 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
             }
             // In case we set a one-shot check because of a previous failure
             UpdatesCheckReceiver.cancelUpdatesCheck(this);
+            //noinspection ResultOfMethodCallIgnored
             jsonNew.renameTo(json);
         } catch (IOException | JSONException e) {
             Log.e(TAG, "Could not read json", e);
@@ -401,12 +404,11 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
             }
 
             @Override
-            public void onResponse(int statusCode, String url,
-                    DownloadClient.Headers headers) {
+            public void onResponse(DownloadClient.Headers headers) {
             }
 
             @Override
-            public void onSuccess(File destination) {
+            public void onSuccess() {
                 runOnUiThread(() -> {
                     Log.d(TAG, "List downloaded");
                     processNewJson(jsonFile, jsonFileTmp, manualRefresh);
@@ -474,13 +476,14 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     private void showPreferencesDialog() {
         View view = LayoutInflater.from(this).inflate(R.layout.preferences_dialog, null);
         Spinner autoCheckInterval =
                 view.findViewById(R.id.preferences_auto_updates_check_interval);
-        Switch autoDelete = view.findViewById(R.id.preferences_auto_delete_updates);
-        Switch dataWarning = view.findViewById(R.id.preferences_mobile_data_warning);
-        Switch abPerfMode = view.findViewById(R.id.preferences_ab_perf_mode);
+        SwitchCompat autoDelete = view.findViewById(R.id.preferences_auto_delete_updates);
+        SwitchCompat dataWarning = view.findViewById(R.id.preferences_mobile_data_warning);
+        SwitchCompat abPerfMode = view.findViewById(R.id.preferences_ab_perf_mode);
 
         if (!Utils.isABDevice()) {
             abPerfMode.setVisibility(View.GONE);
@@ -499,12 +502,9 @@ public class UpdatesActivity extends UpdatesListActivity implements UpdateImport
                     prefs.edit()
                             .putInt(Constants.PREF_AUTO_UPDATES_CHECK_INTERVAL,
                                     autoCheckInterval.getSelectedItemPosition())
-                            .putBoolean(Constants.PREF_AUTO_DELETE_UPDATES,
-                                    autoDelete.isChecked())
-                            .putBoolean(Constants.PREF_MOBILE_DATA_WARNING,
-                                    dataWarning.isChecked())
-                            .putBoolean(Constants.PREF_AB_PERF_MODE,
-                                    abPerfMode.isChecked())
+                            .putBoolean(Constants.PREF_AUTO_DELETE_UPDATES, autoDelete.isChecked())
+                            .putBoolean(Constants.PREF_MOBILE_DATA_WARNING, dataWarning.isChecked())
+                            .putBoolean(Constants.PREF_AB_PERF_MODE, abPerfMode.isChecked())
                             .apply();
 
                     if (Utils.isUpdateCheckEnabled(this)) {
