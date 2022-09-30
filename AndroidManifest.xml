@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.lineageos.updater"
+    xmlns:tools="http://schemas.android.com/tools"
     android:versionCode="1">
 
     <uses-permission android:name="android.permission.ACCESS_CACHE_FILESYSTEM" />
@@ -47,6 +48,11 @@
 
         <service android:name=".controller.UpdaterService" />
         <service android:name=".ExportUpdateService" />
+
+        <provider
+            android:name="androidx.startup.InitializationProvider"
+            android:authorities="${applicationId}.androidx-startup"
+            tools:replace="android:authorities"/>
 
         <receiver android:name=".UpdaterReceiver" android:exported="false">
             <intent-filter>
