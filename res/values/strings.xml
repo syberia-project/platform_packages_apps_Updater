@@ -148,10 +148,6 @@
     <string name="new_updates_channel_title">New updates</string>
     <string name="ongoing_channel_title">Ongoing downloads</string>
     <string name="update_failed_channel_title">Update failed</string>
-
-    <string name="dialog_permissions_title">Permissions</string>
-    <string name="dialog_permissions_dismiss">Dismiss</string>
-    <string name="dialog_permissions_ask">Ask again</string>
     <string name="changelog_url" translatable="false">https://raw.githubusercontent.com/syberia-project/official_devices/master/ab/<xliff:g id="device_name">%1$s</xliff:g>-14.changelog</string>
     <string name="changelog_fail">Failed to retrieve changelog or changelog unavailable</string>
 
