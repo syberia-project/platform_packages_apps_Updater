@@ -69,8 +69,6 @@
     <string name="header_last_updates_check">Поиск обновлений выполнялся <xliff:g id="date" example="1 January 1970">%1$s</xliff:g> в <xliff:g id="time" example="01:23">%2$s</xliff:g></string>
     <string name="list_build_version">SyberiaOS <xliff:g id="version" example="14.1">%1$s</xliff:g></string>
     <string name="list_build_version_date">SyberiaOS <xliff:g id="version" example="14.1">%1$s</xliff:g> - <xliff:g id="date" example="July 11, 2017">%2$s</xliff:g></string>
-    <string name="list_download_progress_new"><xliff:g id="filesize_without_unit" example="12.2">%1$s</xliff:g> из <xliff:g id="filesize_without_unit" example="310 MB">%2$s</xliff:g> • <xliff:g id="percentage" example="56">%3$s</xliff:g></string>
-    <string name="list_download_progress_eta_new"><xliff:g id="filesize_without_unit" example="12.2">%1$s</xliff:g> из <xliff:g id="filesize_without_unit" example="310 MB">%2$s</xliff:g> (<xliff:g id="eta" example="3 minutes left">%3$s</xliff:g>) • <xliff:g id="percentage" example="56">%4$s</xliff:g></string>
     <string name="list_verifying_update">Проверка обновлений</string>
     <string name="list_no_updates">Обновлений не найдено. Чтобы проверить наличие обновлений вручную, используйте кнопку Обновить.</string>
     <string name="action_download">Скачать</string>
@@ -110,12 +108,12 @@
         <item quantity="many">осталось <xliff:g id="count">%d</xliff:g> часов</item>
         <item quantity="other">осталось <xliff:g id="count">%d</xliff:g> часов</item>
     </plurals>
-    <string name="update_on_mobile_data_title">Предупреждение</string>
-    <string name="update_on_mobile_data_message">Скачивание обновления по мобильной сети расходует большой объем трафика и может привести к непредвиденным расходам. Продолжить?</string>
-    <string name="checkbox_mobile_data_warning">Не показывать это сообщение</string>
-    <string name="menu_mobile_data_warning">Предупрежд. о моб. данных</string>
+    <string name="update_over_metered_network_title">Предупреждение</string>
+    <string name="update_over_metered_network_message">Вы собираетесь загрузить пакет обновления через мобильную сеть, что, вероятно, приведет к значительному расходу данных. Продолжить?</string>
+    <string name="checkbox_metered_network_warning">Не показывать это сообщение</string>
+    <string name="menu_metered_network_warning">Предупреждение о сети с тарификацией</string>
     <string name="blocked_update_dialog_title">Обновление заблокировано</string>
-    <string name="blocked_update_dialog_message">Эту сборку нельзя установить с помощью встроенной системы обновления. Для получения дополнительной информации ознакомьтесь с <xliff:g id="info_url">%1$s</xliff:g>.</string>
+    <string name="blocked_update_dialog_message">Эту сборку нельзя установить с помощью встроенной системы обновления.</string>
     <string name="export_channel_title">Экспорт завершен</string>
     <string name="new_updates_channel_title">Новые обновления</string>
     <string name="ongoing_channel_title">Текущие загрузки</string>
@@ -128,4 +126,12 @@
 
     <string name="action_changelog">Изменения</string>
     <string name="changelog_fail">Ошибка получения или список изменений не доступен</string>
+
+    <string name="local_update_import">Локальное обновление</string>
+    <string name="local_update_import_progress">Импорт локального обновления\u2026</string>
+    <string name="local_update_import_success">Обновление %1$s было импортировано. Установить его?</string>
+    <string name="local_update_import_failure">Не удалось импортировать локальное обновление</string>
+    <string name="local_update_import_install">Установить</string>
+    <string name="local_update_name">Локальное обновление</string>
+
 </resources>
