@@ -102,7 +102,7 @@ public class UpdaterController {
 
     private Map<String, DownloadEntry> mDownloads = new HashMap<>();
 
-    public void notifyUpdateChange(String downloadId) {
+    private void notifyUpdateChange(String downloadId) {
         new Thread(() -> {
             try {
                 Thread.sleep(500);
@@ -251,7 +251,7 @@ public class UpdaterController {
         };
     }
 
-    public void verifyUpdateAsync(final String downloadId) {
+    private void verifyUpdateAsync(final String downloadId) {
         mVerifyingUpdates.add(downloadId);
         new Thread(() -> {
             Update update = mDownloads.get(downloadId).mUpdate;
@@ -322,7 +322,7 @@ public class UpdaterController {
             boolean online = downloadIds.contains(entry.mUpdate.getDownloadId());
             entry.mUpdate.setAvailableOnline(online);
             if (!online && purgeList &&
-                    entry.mUpdate.getPersistentStatus() == UpdateStatus.Persistent.UNKNOWN ) {
+                    entry.mUpdate.getPersistentStatus() == UpdateStatus.Persistent.UNKNOWN) {
                 toRemove.add(entry.mUpdate.getDownloadId());
             }
         }
@@ -339,13 +339,6 @@ public class UpdaterController {
 
     private boolean addUpdate(final UpdateInfo updateInfo, boolean availableOnline) {
         Log.d(TAG, "Adding download: " + updateInfo.getDownloadId());
-        if(updateInfo.getPersistentStatus() == UpdateStatus.Persistent.LOCAL){
-            for (DownloadEntry entry : mDownloads.values()) {
-                if(entry.mUpdate.getFile().getPath().equals(updateInfo.getFile().getPath())){
-                    return false;
-                }
-            }
-        }
         if (mDownloads.containsKey(updateInfo.getDownloadId())) {
             Log.d(TAG, "Download (" + updateInfo.getDownloadId() + ") already added");
             Update updateAdded = mDownloads.get(updateInfo.getDownloadId()).mUpdate;
